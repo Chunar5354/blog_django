@@ -1,0 +1,118 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    首页
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<div class="p-1 p-md-3 mb-1 text-white rounded bg-white"></div>
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'article:article_list' %}?search={{ search }}">按时间</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'article:article_list' %}?order=total_views&search={{ search }}">按浏览量</a></li>
+        </ol>
+    </nav>
+
+    <!-- 搜索提示语 -->
+    {% if search %}
+        {% if articles %}
+            <h4><span style="color: #0d6efd">"{{ search }}"</span>的搜索结果如下：</h4>
+            <hr>        
+        {% else %}
+            <h4>暂无<span style="color: #0d6efd">"{{ search }}"</span>有关的文章。</h4>
+            <hr>
+        {% endif %}
+    {% endif %}
+
+    <div class="row mb-2">
+        {% for article in articles %}
+            <div class="col-md-12">
+                <!-- 标题 -->
+                <h3>
+                    <b>
+                        <a href="{% url 'article:article_detail' article.id %}"
+                        style="color: black;" 
+                        >
+                            {{ article.title }}
+                        </a>
+                    </b>
+                </h3>
+                <!-- 标签 -->
+                {% for tag in article.tags.all %}
+				<a href="{% url 'article:article_list' %}?tag={{ tag }}">
+                    	<strong class="d-inline-block mb-2 text-primary">{{ tag }}</strong>
+					</a>
+				{% endfor %}
+                <!-- 摘要 -->
+                <div>
+                    <p style="color: gray;">
+                        {{ article.body|safe|slice:'100' }}...
+                    </p>
+                </div>
+                <!-- 注脚 -->
+                <p>
+                    <!-- 附加信息 -->
+                    <span>
+                        <i class="fas fa-eye" style="color: lightskyblue;"></i>
+                        {{ article.total_views }}&nbsp;&nbsp;&nbsp;
+                    </span>
+                    <span>
+                        <i class="fas fa-clock" style="color: yellowgreen;"></i>
+                        {{ article.created|date:'Y-m-d' }}&nbsp;&nbsp;&nbsp;
+                    </span>
+                </p>
+                <hr>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 页码 -->
+    <div class="pagination row" align="center">
+        <div class="m-auto">
+            <span class="step-links">
+                <!-- 如果不是第一页，则显示上翻按钮 -->
+                {% if articles.has_previous %}
+				<a href="?page=1&order={{ order }}&search={{ search }}&tag={{ tag }}" class="btn btn-primary">
+                        &laquo; 首页
+                    </a>
+                    <span>...</span>
+					<a href="?page={{ articles.previous_page_number }}&order={{ order }}&search={{ search }}&tag={{ tag }}" 
+                       class="btn btn-secondary"
+                    >
+                        {{ articles.previous_page_number }}
+                    </a>
+                {% endif %}
+    
+                <!-- 当前页面 -->
+                <span class="current btn btn-danger btn-lg">
+                    {{ articles.number }}
+                </span>
+    
+                <!-- 如果不是最末页，则显示下翻按钮 -->
+                {% if articles.has_next %}
+				<a href="?page={{ articles.next_page_number }}&order={{ order }}&search={{ search }}&tag={{ tag }}"
+                       class="btn btn-secondary"
+                    >
+                        {{ articles.next_page_number }}
+                    </a>
+                    <span>...</span>
+					<a href="?page={{ articles.paginator.num_pages }}&order={{ order }}&search={{ search }}&tag={{ tag }}"
+                       class="btn btn-primary"
+                    >
+                        尾页 &raquo;
+                    </a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    
+</div>
+
+
+{% endblock content %}

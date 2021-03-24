@@ -1,0 +1,74 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    首页
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<div class="p-1 p-md-3 mb-1 text-white rounded bg-white"></div>
+
+{% if user.is_authenticated %}
+    <div class="container">
+        <div class="d-grid gap-2">
+            <a href="{% url 'article:article_create' %}" class="btn btn-primary btn-lg" tabindex="-1" role="button">创建新文章</a>
+        </div>
+        <div class="p-1 p-md-3 mb-1 text-white rounded bg-white"></div>
+
+        <div class="row mb-2">
+            {% for article in articles %}
+                <div class="col-md-6">
+                    <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            <h2 class="mb-0">{{ article.title }}</h2>
+                            <div class="mb-1 text-muted">{{ article.updated }}</div>
+                            <div class="mb-1 text-muted">{{ article.id }}</div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary btn-lg" tabindex="-1" role="button">查看</a>
+                            <a href="#" class="btn btn-primary btn-lg" tabindex="-1" role="button">修改</a>
+                            <a href="#" class="btn btn-secondary btn-lg" tabindex="-1" role="button" onclick="confirm_safe_delete('{{article.id}}')">删除</a>
+                            <form 
+                                style="display:none;" 
+                                id="safe_delete{{article.id}}"
+                                action="{% url 'article:article_safe_delete' article.id %}" 
+                                method="POST"
+                                >
+                                {% csrf_token %}
+                                <button type="submit">发送</button>
+                            </form>
+                            <script>
+                                function confirm_safe_delete(theId) {
+                                    var target = 'form#safe_delete' + theId + ' button';
+
+                                    layer.open({
+                                        title: "确认删除",
+                                        content: "确认删除这篇文章吗？",
+                                        yes: function(index, layero) {
+                                            $(target).click();
+                                            layer.close(index);
+                                        }
+                                    })
+                                }
+                            </script>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+
+{% else %}
+    <h2 align="center">没有权限，请登录后查看</h2>
+{% endif %}
+
+
+
+{% endblock content %}
