@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'taggit',
+    'index.apps.IndexConfig',
     'comment.apps.CommentConfig',
     'userprofile.apps.UserprofileConfig',
     'article.apps.ArticleConfig',
